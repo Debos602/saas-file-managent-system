@@ -77,9 +77,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "Logged in successfully!",
-    data: {
-      needPasswordChange: result.needPasswordChange,
-    }
+    data: null
   });
 });
 
@@ -170,7 +168,7 @@ REFRESH_TOKEN_EXPIRES_IN=1y
 });
 
 const changePassword = catchAsync(
-  async (req: Request & { user?: any }, res: Response) => {
+  async (req: Request & { user?: any; }, res: Response) => {
     const user = req.user;
 
     const result = await AuthServices.changePassword(user, req.body);
@@ -195,7 +193,7 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const resetPassword = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+const resetPassword = catchAsync(async (req: Request & { user?: any; }, res: Response) => {
   // Extract token from Authorization header (remove "Bearer " prefix)
   const authHeader = req.headers.authorization;
   console.log({ authHeader });
@@ -212,7 +210,7 @@ const resetPassword = catchAsync(async (req: Request & { user?: any }, res: Resp
   });
 });
 
-const getMe = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+const getMe = catchAsync(async (req: Request & { user?: any; }, res: Response) => {
   const user = req.cookies;
 
   const result = await AuthServices.getMe(user);

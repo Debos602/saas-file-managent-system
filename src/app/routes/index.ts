@@ -5,6 +5,9 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { PaymentRoutes } from '../modules/payment/payment.routes';
 import { MetaRoutes } from '../modules/meta/meta.routes';
+import { SubscriptionRoutes } from '../modules/subscription/subscription.routes';
+import { FolderRoutes } from '../modules/storage/folder.routes';
+import { FileRoutes } from '../modules/storage/file.routes';
 
 
 const router = express.Router();
@@ -35,6 +38,19 @@ const moduleRoutes = [
     {
         path: '/meta',
         route: MetaRoutes
+    }
+    ,
+    {
+        path: '/subscription',
+        route: SubscriptionRoutes
+    },
+    {
+        path: '/folders',
+        route: FolderRoutes
+    },
+    {
+        path: '/files',
+        route: FileRoutes
     }
 ];
 

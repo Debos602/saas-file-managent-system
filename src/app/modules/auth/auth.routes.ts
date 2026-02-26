@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { Role } from '@prisma/client';
 import express, { NextFunction, Request, Response } from 'express';
 import auth from '../../middlewares/auth';
 import { authLimiter } from '../../middlewares/rateLimiter';
@@ -20,12 +20,7 @@ router.post(
 
 router.post(
     '/change-password',
-    auth(
-        UserRole.SUPER_ADMIN,
-        UserRole.ADMIN,
-        UserRole.DOCTOR,
-        UserRole.PATIENT
-    ),
+    auth(Role.ADMIN, Role.USER),
     AuthController.changePassword
 );
 
@@ -42,12 +37,7 @@ router.post(
         if (!req.headers.authorization && req.cookies.accessToken) {
             console.log(req.headers.authorization, "from reset password route guard");
             console.log(req.cookies.accessToken, "from reset password route guard");
-            auth(
-                UserRole.SUPER_ADMIN,
-                UserRole.ADMIN,
-                UserRole.DOCTOR,
-                UserRole.PATIENT
-            )(req, res, next);
+            auth(Role.ADMIN, Role.USER)(req, res, next);
         } else {
             //user is resetting password via email link with token
             next();
