@@ -87,96 +87,7 @@ const createAdmin = (req) => __awaiter(void 0, void 0, void 0, function* () {
     }));
     return result;
 });
-const createDoctor = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = yield fileUploader_1.fileUploader.uploadToCloudinary(file);
-        req.body.doctor.profilePhoto = uploadToCloudinary === null || uploadToCloudinary === void 0 ? void 0 : uploadToCloudinary.secure_url;
-    }
-    const hashedPassword = yield bcrypt.hash(req.body.password, Number(config_1.default.salt_round));
-    const userData = {
-        email: req.body.doctor.email,
-        password: hashedPassword,
-        role: client_1.UserRole.DOCTOR,
-    };
-    // Extract specialties from doctor data
-    const _a = req.body.doctor, { specialties } = _a, doctorData = __rest(_a, ["specialties"]);
-    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        // Step 1: Create user
-        yield transactionClient.user.create({
-            data: userData,
-        });
-        // Step 2: Create doctor
-        const createdDoctorData = yield transactionClient.doctor.create({
-            data: doctorData,
-        });
-        // Step 3: Create doctor specialties if provided
-        if (specialties && Array.isArray(specialties) && specialties.length > 0) {
-            // Verify all specialties exist
-            const existingSpecialties = yield transactionClient.specialties.findMany({
-                where: {
-                    id: {
-                        in: specialties,
-                    },
-                },
-                select: {
-                    id: true,
-                },
-            });
-            const existingSpecialtyIds = existingSpecialties.map((s) => s.id);
-            const invalidSpecialties = specialties.filter((id) => !existingSpecialtyIds.includes(id));
-            if (invalidSpecialties.length > 0) {
-                throw new Error(`Invalid specialty IDs: ${invalidSpecialties.join(", ")}`);
-            }
-            // Create doctor specialties relations
-            const doctorSpecialtiesData = specialties.map((specialtyId) => ({
-                doctorId: createdDoctorData.id,
-                specialitiesId: specialtyId,
-            }));
-            yield transactionClient.doctorSpecialties.createMany({
-                data: doctorSpecialtiesData,
-            });
-        }
-        // Step 4: Return doctor with specialties
-        const doctorWithSpecialties = yield transactionClient.doctor.findUnique({
-            where: {
-                id: createdDoctorData.id,
-            },
-            include: {
-                doctorSpecialties: {
-                    include: {
-                        specialities: true,
-                    },
-                },
-            },
-        });
-        return doctorWithSpecialties;
-    }));
-    return result;
-});
-const createPatient = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = req.file;
-    if (file) {
-        const uploadedProfileImage = yield fileUploader_1.fileUploader.uploadToCloudinary(file);
-        req.body.patient.profilePhoto = uploadedProfileImage === null || uploadedProfileImage === void 0 ? void 0 : uploadedProfileImage.secure_url;
-    }
-    const hashedPassword = yield bcrypt.hash(req.body.password, Number(config_1.default.salt_round));
-    const userData = {
-        email: req.body.patient.email,
-        password: hashedPassword,
-        role: client_1.UserRole.PATIENT
-    };
-    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        yield transactionClient.user.create({
-            data: Object.assign(Object.assign({}, userData), { needPasswordChange: false })
-        });
-        const createdPatientData = yield transactionClient.patient.create({
-            data: req.body.patient
-        });
-        return createdPatientData;
-    }));
-    return result;
-});
+ 
 const getAllFromDB = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
@@ -411,8 +322,6 @@ const updateMyProfie = (user, req) => __awaiter(void 0, void 0, void 0, function
 });
 exports.userService = {
     createAdmin,
-    createDoctor,
-    createPatient,
     getAllFromDB,
     changeProfileStatus,
     getMyProfile,

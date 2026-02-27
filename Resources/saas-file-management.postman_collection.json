@@ -94,15 +94,7 @@
             "url": { "raw": "{{baseUrl}}/user/create-admin", "host": ["{{baseUrl}}"], "path": ["user","create-admin"] }
           }
         },
-        {
-          "name": "Create Patient (multipart)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] }, { "key": "data", "type": "text", "value": "{ \"email\": \"patient@example.com\", \"name\": \"Patient\" }" } ] },
-            "url": { "raw": "{{baseUrl}}/user/create-patient", "host": ["{{baseUrl}}"], "path": ["user","create-patient"] }
-          }
-        },
+        
         {
           "name": "Update My Profile (multipart)",
           "request": {

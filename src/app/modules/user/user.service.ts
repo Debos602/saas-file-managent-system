@@ -26,29 +26,7 @@ const createAdmin = async (req: Request) => {
     return result;
 };
 
-const createDoctor = async (req: Request) => {
-    const hashedPassword: string = await bcrypt.hash(req.body.password, Number(config.salt_round));
-    const userData = {
-        email: req.body.doctor.email,
-        password: hashedPassword,
-        name: req.body.doctor.name,
-        role: 'USER' as Role
-    };
-    const result = await prisma.user.create({ data: userData });
-    return result;
-};
 
-const createPatient = async (req: Request) => {
-    const hashedPassword: string = await bcrypt.hash(req.body.password, Number(config.salt_round));
-    const userData = {
-        email: req.body.patient.email,
-        password: hashedPassword,
-        name: req.body.patient.name,
-        role: 'USER' as Role
-    };
-    const result = await prisma.user.create({ data: userData });
-    return result;
-};
 
 const getAllFromDB = async (params: any, options: IPaginationOptions) => {
     const { page, limit, skip } = paginationHelper.calculatePagination(options);
@@ -137,8 +115,6 @@ const updateMyProfie = async (user: IAuthUser, req: Request) => {
 
 export const userService = {
     createAdmin,
-    createDoctor,
-    createPatient,
     getAllFromDB,
     changeProfileStatus,
     getMyProfile,
