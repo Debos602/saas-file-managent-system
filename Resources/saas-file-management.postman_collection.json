@@ -1,0 +1,187 @@
+{
+  "info": {
+    "name": "SaaS File Management API",
+    "_postman_id": "2f8b3c9a-8f6d-4c1b-9e2a-1a2b3c4d5e6f",
+    "description": "Postman collection for the SaaS File Management System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["auth","refresh-token"] }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth","me"] }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@example.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth","forgot-password"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"<token-from-email>\",\n  \"password\": \"newpassword\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth","reset-password"] }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"old\",\n  \"newPassword\": \"new\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/change-password", "host": ["{{baseUrl}}"], "path": ["auth","change-password"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get All Users (admin)",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/user/", "host": ["{{baseUrl}}"], "path": ["user",""] } }
+        },
+        {
+          "name": "Get My Profile",
+          "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/user/me", "host": ["{{baseUrl}}"], "path": ["user","me"] } }
+        },
+        {
+          "name": "Create Admin (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "data", "type": "text", "value": "{ \"email\": \"admin@example.com\", \"name\": \"Admin\", \"password\": \"password\" }" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/user/create-admin", "host": ["{{baseUrl}}"], "path": ["user","create-admin"] }
+          }
+        },
+        {
+          "name": "Create Patient (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] }, { "key": "data", "type": "text", "value": "{ \"email\": \"patient@example.com\", \"name\": \"Patient\" }" } ] },
+            "url": { "raw": "{{baseUrl}}/user/create-patient", "host": ["{{baseUrl}}"], "path": ["user","create-patient"] }
+          }
+        },
+        {
+          "name": "Update My Profile (multipart)",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+            "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] }, { "key": "data", "type": "text", "value": "{ \"name\": \"New Name\" }" } ] },
+            "url": { "raw": "{{baseUrl}}/user/update-my-profile", "host": ["{{baseUrl}}"], "path": ["user","update-my-profile"] }
+          }
+        },
+        {
+          "name": "Change Profile Status (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{baseUrl}}/user/:id/status", "host": ["{{baseUrl}}"], "path": ["user",":id","status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        {
+          "name": "Upload File (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+            "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] } ] },
+            "url": { "raw": "{{baseUrl}}/files/", "host": ["{{baseUrl}}"], "path": ["files",""] }
+          }
+        },
+        { "name": "List Files In Folder", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/files/folder/:folderId", "host": ["{{baseUrl}}"], "path": ["files","folder",":folderId"] } } },
+        { "name": "Get File By Id", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/files/:id", "host": ["{{baseUrl}}"], "path": ["files",":id"] } } },
+        { "name": "Delete File", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/files/:id", "host": ["{{baseUrl}}"], "path": ["files",":id"] } } },
+        { "name": "Rename File", "request": { "method": "PATCH", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"newname.ext\"\n}" }, "url": { "raw": "{{baseUrl}}/files/:id", "host": ["{{baseUrl}}"], "path": ["files",":id"] } } }
+      ]
+    },
+    {
+      "name": "Folders",
+      "item": [
+        { "name": "Create Folder", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"My Folder\",\n  \"parentId\": null\n}" }, "url": { "raw": "{{baseUrl}}/folders/", "host": ["{{baseUrl}}"], "path": ["folders",""] } } },
+        { "name": "List Root Folders", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/folders/root", "host": ["{{baseUrl}}"], "path": ["folders","root"] } } },
+        { "name": "List Children", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/folders/:id/children", "host": ["{{baseUrl}}"], "path": ["folders",":id","children"] } } },
+        { "name": "Rename Folder", "request": { "method": "PATCH", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Renamed\"\n}" }, "url": { "raw": "{{baseUrl}}/folders/:id", "host": ["{{baseUrl}}"], "path": ["folders",":id"] } } },
+        { "name": "Delete Folder", "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/folders/:id", "host": ["{{baseUrl}}"], "path": ["folders",":id"] } } }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        { "name": "Get All Admins", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/admin/", "host": ["{{baseUrl}}"], "path": ["admin",""] } } },
+        { "name": "Get Admin By Id", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/admin/:id", "host": ["{{baseUrl}}"], "path": ["admin",":id"] } } },
+        { "name": "Update Admin", "request": { "method": "PATCH", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\"\n}" }, "url": { "raw": "{{baseUrl}}/admin/:id", "host": ["{{baseUrl}}"], "path": ["admin",":id"] } } },
+        { "name": "Delete Admin", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/admin/:id", "host": ["{{baseUrl}}"], "path": ["admin",":id"] } } },
+        { "name": "Soft Delete Admin", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/admin/soft/:id", "host": ["{{baseUrl}}"], "path": ["admin","soft",":id"] } } }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "item": [
+        { "name": "Get Packages", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/subscription/packages", "host": ["{{baseUrl}}"], "path": ["subscription","packages"] } } },
+        { "name": "Create Package", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Pro\",\n  \"price\": 1999\n}" }, "url": { "raw": "{{baseUrl}}/subscription/packages", "host": ["{{baseUrl}}"], "path": ["subscription","packages"] } } },
+        { "name": "Get Package By Id", "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/subscription/packages/:id", "host": ["{{baseUrl}}"], "path": ["subscription","packages",":id"] } } },
+        { "name": "Update Package", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Pro Plus\"\n}" }, "url": { "raw": "{{baseUrl}}/subscription/packages/:id", "host": ["{{baseUrl}}"], "path": ["subscription","packages",":id"] } } },
+        { "name": "Delete Package", "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/subscription/packages/:id", "host": ["{{baseUrl}}"], "path": ["subscription","packages",":id"] } } },
+        { "name": "Select Package", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"packageId\": \"<package-id>\"\n}" }, "url": { "raw": "{{baseUrl}}/subscription/select", "host": ["{{baseUrl}}"], "path": ["subscription","select"] } } },
+        { "name": "Get My Subscriptions", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/subscription/my", "host": ["{{baseUrl}}"], "path": ["subscription","my"] } } }
+      ]
+    },
+    {
+      "name": "Meta",
+      "item": [
+        { "name": "Fetch Dashboard Meta", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/meta", "host": ["{{baseUrl}}"], "path": ["meta"] } } }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "accessToken", "value": "" }
+  ]
+}

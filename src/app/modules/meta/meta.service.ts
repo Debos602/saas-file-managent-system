@@ -17,4 +17,3 @@ const fetchDashboardMetaData = async () => {
 };
 
 export const MetaService = { fetchDashboardMetaData };
-}
