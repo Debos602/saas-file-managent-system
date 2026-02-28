@@ -9,23 +9,27 @@ import { IAuthUser } from "../../interfaces/common";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { userSearchAbleFields } from "./user.constant";
 
-const createAdmin = async (req: Request) => {
-    const file = req.file;
+const createUser = async (req: Request) => {
+
+    // ensure password present before hashing
+    if (!req.body || !req.body.password) {
+        throw new Error('Password is required');
+    }
 
     // upload ignored for now — User model contains only basic fields
-    const hashedPassword: string = await bcrypt.hash(req.body.password, Number(config.salt_round));
+    const saltRounds = Number(config.salt_round) || 10;
+    const hashedPassword: string = await bcrypt.hash(req.body.password, saltRounds);
 
-    const adminData = {
+    const userData = {
         email: req.body.admin.email,
         password: hashedPassword,
         name: req.body.admin.name,
-        role: 'ADMIN' as Role
+        role: 'USER' as Role
     };
-
-    const result = await prisma.user.create({ data: adminData });
+    console.log("user-data", userData);
+    const result = await prisma.user.create({ data: userData });
     return result;
 };
-
 
 
 const getAllFromDB = async (params: any, options: IPaginationOptions) => {
@@ -114,7 +118,7 @@ const updateMyProfie = async (user: IAuthUser, req: Request) => {
 
 
 export const userService = {
-    createAdmin,
+    createUser,
     getAllFromDB,
     changeProfileStatus,
     getMyProfile,

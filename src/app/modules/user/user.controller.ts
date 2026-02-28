@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
+import { userValidation } from "./user.validation";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
@@ -8,14 +9,39 @@ import { userFilterableFields } from "./user.constant";
 
 import { IAuthUser } from "../../interfaces/common";
 
-const createAdmin = catchAsync(async (req: Request, res: Response) => {
+const createUser = catchAsync(async (req: Request, res: Response) => {
+    // normalize payload: accept raw JSON or multipart form-data with `data` field
+    let input: any = req.body;
+    const file = req.file;
+    console.log("file", file);
+    const contentType = req.headers['content-type'] || '';
+    if (typeof contentType === 'string' && contentType.includes('application/json')) {
+        input = req.body;
+    }
+    else if (req.body && (req as any).body.data) {
+        try {
+            input = JSON.parse((req as any).body.data);
+        }
+        catch (e) {
+            input = (req as any).body.data;
+        }
+    }
 
-    const result = await userService.createAdmin(req);
+    req.body = userValidation.createUser.parse(input) as any;
+
+    const result = await userService.createUser(req);
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Admin Created successfuly!",
-        data: result
+        message: "User Created successfuly!",
+        data: {
+            id: result.id,
+            email: result.email,
+            name: result.name,
+            role: result.role,
+            createdAt: result.createdAt,
+            updateAt: result.updatedAt
+        }
     });
 });
 
@@ -79,8 +105,7 @@ const updateMyProfie = catchAsync(async (req: Request & { user?: IAuthUser; }, r
 });
 
 export const userController = {
-    createAdmin,
-
+    createUser,
     getAllFromDB,
     changeProfileStatus,
     getMyProfile,

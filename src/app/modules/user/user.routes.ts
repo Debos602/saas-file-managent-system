@@ -13,13 +13,10 @@ router.get('/', auth(Role.ADMIN), userController.getAllFromDB);
 router.get('/me', auth(Role.ADMIN, Role.USER), userController.getMyProfile);
 
 router.post(
-    "/create-admin",
-    auth(Role.ADMIN),
+    "/create-user",
+    auth(Role.ADMIN, Role.USER),
     fileUploader.upload.single('file'),
-    (req: Request, res: Response, next: NextFunction) => {
-        req.body = userValidation.createAdmin.parse(JSON.parse(req.body.data));
-        return userController.createAdmin(req, res, next);
-    }
+    userController.createUser
 );
 
 

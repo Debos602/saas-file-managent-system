@@ -1,13 +1,29 @@
 import { z } from "zod";
 
-const createAdmin = z.object({
+const createUser = z.preprocess((input) => {
+    if (typeof input === 'object' && input !== null) {
+        const obj = input as any;
+        if (obj.admin) return obj;
+        if (obj.name && obj.email) {
+            return {
+                password: obj.password,
+                admin: {
+                    name: obj.name,
+                    email: obj.email,
+                    contactNumber: obj.contactNumber,
+                }
+            };
+        }
+    }
+    return input;
+}, z.object({
     password: z.string({ error: "Password is required" }),
     admin: z.object({
         name: z.string({ error: "Name is required" }),
         email: z.string({ error: "Email is required" }).email(),
         contactNumber: z.string().optional(),
     }),
-});
+}));
 
 
 
@@ -16,6 +32,6 @@ const updateStatus = z.object({
 });
 
 export const userValidation = {
-    createAdmin,
+    createUser,
     updateStatus,
 };

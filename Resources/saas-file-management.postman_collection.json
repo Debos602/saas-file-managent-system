@@ -18,7 +18,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"123456\"\n}"
+              "raw": "{\n  \"email\": \"debos.das.02@gmail.com\",\n  \"password123!\": \"123456\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
           }
@@ -38,33 +38,6 @@
             "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
             "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth","me"] }
           }
-        },
-        {
-          "name": "Forgot Password",
-          "request": {
-            "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@gmail.com\"\n}" },
-            "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth","forgot-password"] }
-          }
-        },
-        {
-          "name": "Reset Password",
-          "request": {
-            "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"token\": \"<token-from-email>\",\n  \"password\": \"newpassword\"\n}" },
-            "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth","reset-password"] }
-          }
-        },
-        {
-          "name": "Change Password",
-          "request": {
-            "method": "POST",
-            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"old\",\n  \"newPassword\": \"new\"\n}" },
-            "url": { "raw": "{{baseUrl}}/auth/change-password", "host": ["{{baseUrl}}"], "path": ["auth","change-password"] }
-          }
         }
       ]
     },
@@ -80,7 +53,7 @@
           "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/user/me", "host": ["{{baseUrl}}"], "path": ["user","me"] } }
         },
         {
-          "name": "Create Admin (multipart)",
+          "name": "Create user (multipart)",
           "request": {
             "method": "POST",
             "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
@@ -88,10 +61,10 @@
               "mode": "formdata",
               "formdata": [
                 { "key": "file", "type": "file", "src": [] },
-                { "key": "data", "type": "text", "value": "{ \"email\": \"admin@example.com\", \"name\": \"Admin\", \"password\": \"password\" }" }
+                { "key": "data", "type": "text", "value": "{ \"email\": \"johne@example.com\", \"name\": \"jhon\", \"password\": \"password\" }" }
               ]
             },
-            "url": { "raw": "{{baseUrl}}/user/create-admin", "host": ["{{baseUrl}}"], "path": ["user","create-admin"] }
+            "url": { "raw": "{{baseUrl}}/user/create-user", "host": ["{{baseUrl}}"], "path": ["user","create-user"] }
           }
         },
         
@@ -173,7 +146,7 @@
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
     { "key": "accessToken", "value": "" }
   ]
 }

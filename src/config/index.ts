@@ -10,6 +10,8 @@ export default {
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
     salt_round: process.env.SALT_ROUND,
     openRouterApiKey: process.env.OPENROUTER_API_KEY,
+    admin_email: process.env.ADMIN_EMAIL,
+    admin_password: process.env.ADMIN_PASSWORD,
     jwt: {
         jwt_secret: process.env.JWT_SECRET,
         expires_in: process.env.EXPIRES_IN,

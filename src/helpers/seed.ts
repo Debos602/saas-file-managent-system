@@ -12,11 +12,11 @@ const seedSuperAdmin = async () => {
             return;
         };
 
-        const hashedPassword = await bcrypt.hash("123456", Number(config.salt_round));
+        const hashedPassword = await bcrypt.hash(config.admin_password as string, Number(config.salt_round));
 
         const superAdminData = await prisma.user.create({
             data: {
-                email: "admin@gmail.com",
+                email: config.admin_email as string,
                 password: hashedPassword,
                 role: 'ADMIN' as Role,
                 name: 'Admin'

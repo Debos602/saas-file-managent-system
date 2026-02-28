@@ -167,48 +167,7 @@ REFRESH_TOKEN_EXPIRES_IN=1y
   });
 });
 
-const changePassword = catchAsync(
-  async (req: Request & { user?: any; }, res: Response) => {
-    const user = req.user;
 
-    const result = await AuthServices.changePassword(user, req.body);
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Password Changed successfully",
-      data: result,
-    });
-  }
-);
-
-const forgotPassword = catchAsync(async (req: Request, res: Response) => {
-  await AuthServices.forgotPassword(req.body);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Check your email!",
-    data: null,
-  });
-});
-
-const resetPassword = catchAsync(async (req: Request & { user?: any; }, res: Response) => {
-  // Extract token from Authorization header (remove "Bearer " prefix)
-  const authHeader = req.headers.authorization;
-  console.log({ authHeader });
-  const token = authHeader ? authHeader.replace('Bearer ', '') : null;
-  const user = req.user; // Will be populated if authenticated via middleware
-
-  await AuthServices.resetPassword(token, req.body, user);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Password Reset!",
-    data: null,
-  });
-});
 
 const getMe = catchAsync(async (req: Request & { user?: any; }, res: Response) => {
   const user = req.cookies;
@@ -228,8 +187,5 @@ const getMe = catchAsync(async (req: Request & { user?: any; }, res: Response) =
 export const AuthController = {
   loginUser,
   refreshToken,
-  changePassword,
-  forgotPassword,
-  resetPassword,
   getMe
 };

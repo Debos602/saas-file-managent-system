@@ -2,19 +2,11 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
-import cron from 'node-cron';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
-import { PaymentController } from './app/modules/payment/payment.controller';
 import router from './app/routes';
 
 const app: Application = express();
 app.use(cookieParser());
-
-app.post(
-    "/webhook",
-    express.raw({ type: "application/json" }),
-    PaymentController.handleStripeWebhookEvent
-);
 
 app.use(cors({
     origin: ['http://localhost:3000', 'http://localhost:3001'],
@@ -29,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req: Request, res: Response) => {
     res.send({
-        Message: "Ph health care server.."
+        Message: "Saas file management server.."
     });
 });
 
