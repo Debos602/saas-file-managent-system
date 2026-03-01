@@ -32,15 +32,15 @@ const uploadFile = async (userId: string, folderId: string, file: Express.Multer
     // Upload to cloud (or keep local) then create record
     const uploaded = await fileUploader.uploadToCloudinary(file);
 
-    const record = await prisma.file.create({
-        data: {
-            name: file.originalname,
-            type,
-            sizeMB,
-            userId,
-            folderId
-        }
-    });
+    const data: any = {
+        name: file.originalname,
+        type,
+        sizeMB,
+        user: { connect: { id: userId } },
+        ...(folderId ? { folder: { connect: { id: folderId } } } : {})
+    };
+
+    const record = await prisma.file.create({ data });
 
     return { record, uploaded };
 };

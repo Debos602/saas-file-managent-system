@@ -20,7 +20,8 @@ const loginUser = async (payload: {
     }
     const accessToken = jwtHelpers.generateToken({
         email: userData.email,
-        role: userData.role
+        role: userData.role,
+        id: userData.id
     },
         config.jwt.jwt_secret as Secret,
         config.jwt.expires_in as string
@@ -28,7 +29,8 @@ const loginUser = async (payload: {
 
     const refreshToken = jwtHelpers.generateToken({
         email: userData.email,
-        role: userData.role
+        role: userData.role,
+        id: userData.id
     },
         config.jwt.refresh_token_secret as Secret,
         config.jwt.refresh_token_expires_in as string
@@ -50,7 +52,8 @@ const refreshToken = async (token: string) => {
 
     const accessToken = jwtHelpers.generateToken({
         email: userData.email,
-        role: userData.role
+        role: userData.role,
+        id: userData.id
     },
         config.jwt.jwt_secret as Secret,
         config.jwt.expires_in as string
@@ -58,7 +61,8 @@ const refreshToken = async (token: string) => {
 
     const refreshToken = jwtHelpers.generateToken({
         email: userData.email,
-        role: userData.role
+        role: userData.role,
+        id: userData.id
     },
         config.jwt.refresh_token_secret as Secret,
         config.jwt.refresh_token_expires_in as string

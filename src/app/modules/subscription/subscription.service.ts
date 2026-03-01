@@ -1,11 +1,15 @@
+import { Prisma, SubscriptionPackage } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import ApiError from "../../errors/ApiError";
 
-const createPackage = async (data: any) => {
-    const result = await prisma.subscriptionPackage.create({ data });
+const createPackage = async (payload: Prisma.SubscriptionPackageCreateInput): Promise<SubscriptionPackage> => {
+    const result = await prisma.subscriptionPackage.create({
+        data: payload
+    });
     return result;
 };
 
-const updatePackage = async (id: string, data: any) => {
+const updatePackage = async (id: string, data: Prisma.SubscriptionPackageCreateInput) => {
     await prisma.subscriptionPackage.findUniqueOrThrow({ where: { id } });
     return prisma.subscriptionPackage.update({ where: { id }, data });
 };
@@ -24,6 +28,14 @@ const getById = async (id: string) => {
 };
 
 const selectPackageForUser = async (userId: string, packageId: string) => {
+    if (!userId) {
+        throw new ApiError(401, 'User authentication required');
+    }
+
+    if (!packageId) {
+        throw new ApiError(400, 'packageId is required');
+    }
+
     // End previous active subscription
     await prisma.userSubscription.updateMany({
         where: { userId, endDate: null },

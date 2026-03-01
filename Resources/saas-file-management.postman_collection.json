@@ -76,16 +76,8 @@
             "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] }, { "key": "data", "type": "text", "value": "{ \"name\": \"New Name\" }" } ] },
             "url": { "raw": "{{baseUrl}}/user/update-my-profile", "host": ["{{baseUrl}}"], "path": ["user","update-my-profile"] }
           }
-        },
-        {
-          "name": "Change Profile Status (admin)",
-          "request": {
-            "method": "PATCH",
-            "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\"\n}" },
-            "url": { "raw": "{{baseUrl}}/user/:id/status", "host": ["{{baseUrl}}"], "path": ["user",":id","status"] }
-          }
         }
+        
       ]
     },
     {

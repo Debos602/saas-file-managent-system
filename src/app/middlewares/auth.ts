@@ -4,6 +4,7 @@ import { Secret } from "jsonwebtoken";
 import config from "../../config";
 import { jwtHelpers } from "../../helpers/jwtHelpers";
 import ApiError from "../errors/ApiError";
+import prisma from "../../shared/prisma";
 
 
 const auth = (...roles: string[]) => {
@@ -20,7 +21,16 @@ const auth = (...roles: string[]) => {
                 throw new ApiError(httpStatus.UNAUTHORIZED, "You are not authorized!");
             }
 
-            const verifiedUser = jwtHelpers.verifyToken(token, config.jwt.jwt_secret as Secret);
+            let verifiedUser = jwtHelpers.verifyToken(token, config.jwt.jwt_secret as Secret) as any;
+
+            // If the token doesn't include `id`, attempt to resolve it from DB using email
+            if (!verifiedUser.id && verifiedUser.email) {
+                const dbUser = await prisma.user.findUnique({ where: { email: verifiedUser.email }, select: { id: true, email: true, role: true } });
+                if (!dbUser) {
+                    throw new ApiError(httpStatus.UNAUTHORIZED, "You are not authorized!");
+                }
+                verifiedUser = { ...verifiedUser, id: dbUser.id };
+            }
 
             req.user = verifiedUser;
 
