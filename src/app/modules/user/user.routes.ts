@@ -14,7 +14,6 @@ router.get('/me', auth(Role.ADMIN, Role.USER), userController.getMyProfile);
 
 router.post(
     "/create-user",
-    auth(Role.ADMIN, Role.USER),
     fileUploader.upload.single('file'),
     userController.createUser
 );

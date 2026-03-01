@@ -1,6 +1,8 @@
 import prisma from "../../../shared/prisma";
 import { getActivePackageForUser, mapMimeToType } from "../../middlewares/subscriptionEnforcer";
 import { fileUploader } from "../../../helpers/fileUploader";
+import ApiError from "../../errors/ApiError";
+import httpStatus from "http-status";
 
 const uploadFile = async (userId: string, folderId: string, file: Express.Multer.File) => {
     const pkg = await getActivePackageForUser(userId);
@@ -10,32 +12,49 @@ const uploadFile = async (userId: string, folderId: string, file: Express.Multer
     const sizeMB = Number((file.size / (1024 * 1024)).toFixed(2));
 
     if (pkg) {
-        if (pkg.allowedFileTypes && pkg.allowedFileTypes.length > 0 && !pkg.allowedFileTypes.includes(type)) {
-            throw new Error('File type not allowed in your subscription');
+
+        if (pkg.allowedFileTypes && pkg.allowedFileTypes.length > 0) {
+            const normalizedAllowed = pkg.allowedFileTypes.map((t: string) => t.toLowerCase().trim());
+            const typeLower = (type || '').toLowerCase();
+            const mimeLower = (file.mimetype || '').toLowerCase();
+            const ext = (file.originalname || '').split('.').pop()?.toLowerCase() || '';
+
+            const allowed = normalizedAllowed.includes(typeLower)
+                || normalizedAllowed.includes(mimeLower)
+                || normalizedAllowed.some((a: string) => mimeLower.startsWith(a + '/'))
+                || (ext && normalizedAllowed.includes(ext));
+
+            if (!allowed) {
+                throw new ApiError(httpStatus.FORBIDDEN, 'File type not allowed in your subscription');
+            }
         }
 
         if (pkg.maxFileSizeMB && sizeMB > pkg.maxFileSizeMB) {
-            throw new Error('File size exceeds subscription limit');
+            throw new ApiError(httpStatus.FORBIDDEN, 'File size exceeds subscription limit');
         }
 
         const totalFiles = await prisma.file.count({ where: { userId } });
         if (pkg.totalFileLimit && totalFiles >= pkg.totalFileLimit) {
-            throw new Error('Total file limit reached for your subscription');
+            throw new ApiError(httpStatus.FORBIDDEN, 'File upload limit reached for your current subscription plan');
         }
 
         const filesInFolder = await prisma.file.count({ where: { folderId } });
         if (pkg.filesPerFolder && filesInFolder >= pkg.filesPerFolder) {
-            throw new Error('Files per folder limit reached for your subscription');
+            throw new ApiError(httpStatus.FORBIDDEN, 'Files per folder limit reached for your subscription');
         }
     }
 
     // Upload to cloud (or keep local) then create record
-    const uploaded = await fileUploader.uploadToCloudinary(file);
+    const uploaded: any = await fileUploader.uploadToCloudinary(file);
+
+    // Prefer secure_url from Cloudinary, fall back to url
+    const fileUrl = uploaded?.secure_url || uploaded?.url || '';
 
     const data: any = {
         name: file.originalname,
         type,
         sizeMB,
+        filePath: fileUrl,
         user: { connect: { id: userId } },
         ...(folderId ? { folder: { connect: { id: folderId } } } : {})
     };
@@ -50,7 +69,20 @@ const listFilesInFolder = async (folderId: string) => {
 };
 
 const getFileById = async (id: string) => {
-    return prisma.file.findUnique({ where: { id } });
+    return prisma.file.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            name: true,
+            type: true,
+            sizeMB: true,
+            filePath: true,
+            userId: true,
+            folderId: true,
+            createdAt: true,
+            updatedAt: true
+        }
+    });
 };
 
 const deleteFile = async (id: string) => {

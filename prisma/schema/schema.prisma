@@ -96,6 +96,7 @@ model File {
   name      String
   type      String   // Image, Video, PDF, Audio
   sizeMB    Float
+  filePath  String
   userId    String
   folderId  String
   createdAt DateTime @default(now())
