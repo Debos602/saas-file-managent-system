@@ -34,16 +34,26 @@ function uploadToCloudinary(file) {
             api_key: config_1.default.cloudinary.api_key,
             api_secret: config_1.default.cloudinary.api_secret
         });
-        // Upload an image
-        const uploadResult = yield cloudinary_1.v2.uploader
-            .upload(file.path, {
-            public_id: `${file.originalname}-${Date.now()}`,
-        })
-            .catch((error) => {
+        // Upload with resource_type 'auto' so non-image files (pdf, video, etc.) are accepted
+        try {
+            const uploadResult = yield cloudinary_1.v2.uploader.upload(file.path, {
+                public_id: `${file.originalname}-${Date.now()}`,
+                resource_type: 'auto'
+            });
+            return uploadResult;
+        }
+        catch (error) {
             throw error;
-        });
-        fs_1.default.unlinkSync(file.path);
-        return uploadResult;
+        }
+        finally {
+            try {
+                if (fs_1.default.existsSync(file.path))
+                    fs_1.default.unlinkSync(file.path);
+            }
+            catch (e) {
+                // swallow unlink errors
+            }
+        }
         // // Optimize delivery by resizing and applying auto-format and auto-quality
         // const optimizeUrl = cloudinary.url(`${uploadResult?.public_id}`, {
         //     fetch_format: 'auto',

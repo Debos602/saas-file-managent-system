@@ -45,35 +45,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcryptjs"));
 const config_1 = __importDefault(require("../config"));
 const prisma_1 = __importDefault(require("../shared/prisma"));
 const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const isExistSuperAdmin = yield prisma_1.default.user.findFirst({
-            where: {
-                role: client_1.UserRole.ADMIN
-            }
-        });
+        const isExistSuperAdmin = yield prisma_1.default.user.findFirst({ where: { role: 'ADMIN' } });
         if (isExistSuperAdmin) {
             console.log("Super admin already exists!");
             return;
         }
         ;
-        const hashedPassword = yield bcrypt.hash("123456", Number(config_1.default.salt_round));
+        const hashedPassword = yield bcrypt.hash(config_1.default.admin_password, Number(config_1.default.salt_round));
         const superAdminData = yield prisma_1.default.user.create({
             data: {
-                email: "admin@gmail.com",
+                email: config_1.default.admin_email,
                 password: hashedPassword,
-                role: client_1.UserRole.ADMIN,
-                admin: {
-                    create: {
-                        name: "Admin",
-                        //email: "super@admin.com",
-                        contactNumber: "01234567890"
-                    }
-                }
+                role: 'ADMIN',
+                name: 'Admin'
             }
         });
         console.log("Super Admin Created Successfully!", superAdminData);
@@ -82,6 +71,56 @@ const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
         console.error(err);
     }
     finally {
+        // Ensure default subscription packages exist
+        try {
+            const packages = [
+                {
+                    name: 'Free',
+                    maxFolders: 5,
+                    maxNestingLevel: 2,
+                    allowedFileTypes: ['Image', 'PDF'],
+                    maxFileSizeMB: 5,
+                    totalFileLimit: 20,
+                    filesPerFolder: 5
+                },
+                {
+                    name: 'Silver',
+                    maxFolders: 50,
+                    maxNestingLevel: 3,
+                    allowedFileTypes: ['Image', 'PDF', 'Audio'],
+                    maxFileSizeMB: 25,
+                    totalFileLimit: 500,
+                    filesPerFolder: 50
+                },
+                {
+                    name: 'Gold',
+                    maxFolders: 200,
+                    maxNestingLevel: 5,
+                    allowedFileTypes: ['Image', 'Video', 'PDF', 'Audio'],
+                    maxFileSizeMB: 100,
+                    totalFileLimit: 5000,
+                    filesPerFolder: 500
+                },
+                {
+                    name: 'Diamond',
+                    maxFolders: 1000,
+                    maxNestingLevel: 10,
+                    allowedFileTypes: ['Image', 'Video', 'PDF', 'Audio'],
+                    maxFileSizeMB: 1024,
+                    totalFileLimit: 100000,
+                    filesPerFolder: 5000
+                }
+            ];
+            for (const p of packages) {
+                const exists = yield prisma_1.default.subscriptionPackage.findUnique({ where: { name: p.name } });
+                if (!exists) {
+                    yield prisma_1.default.subscriptionPackage.create({ data: p });
+                }
+            }
+        }
+        catch (e) {
+            console.error('Failed to seed packages', e);
+        }
         yield prisma_1.default.$disconnect();
     }
 });

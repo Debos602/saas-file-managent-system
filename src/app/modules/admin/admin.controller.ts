@@ -9,8 +9,8 @@ import catchAsync from '../../../shared/catchAsync';
 
 const getAllFromDB: RequestHandler = catchAsync(async (req: Request, res: Response) => {
     const filters = pick(req.query, adminFilterableFields);
-    const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder'])
-    const result = await AdminService.getAllFromDB(filters, options)
+    const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+    const result = await AdminService.getAllFromDB(filters, options);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -18,8 +18,8 @@ const getAllFromDB: RequestHandler = catchAsync(async (req: Request, res: Respon
         message: "Admin data fetched!",
         meta: result.meta,
         data: result.data
-    })
-})
+    });
+});
 
 const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -31,7 +31,7 @@ const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
         message: "Admin data fetched by id!",
         data: result
     });
-})
+});
 
 
 const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
@@ -43,8 +43,8 @@ const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
         success: true,
         message: "Admin data updated!",
         data: result
-    })
-})
+    });
+});
 
 const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -55,8 +55,8 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
         success: true,
         message: "Admin data deleted!",
         data: result
-    })
-})
+    });
+});
 
 
 const softDeleteFromDB = catchAsync(async (req: Request, res: Response) => {
@@ -68,7 +68,7 @@ const softDeleteFromDB = catchAsync(async (req: Request, res: Response) => {
         success: true,
         message: "Admin data deleted!",
         data: result
-    })
+    });
 });
 
 export const AdminController = {
@@ -77,4 +77,4 @@ export const AdminController = {
     updateIntoDB,
     deleteFromDB,
     softDeleteFromDB
-}
+};

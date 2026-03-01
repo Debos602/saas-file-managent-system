@@ -24,7 +24,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminService = void 0;
-const client_1 = require("@prisma/client");
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const admin_constant_1 = require("./admin.constant");
@@ -53,24 +52,19 @@ const getAllFromDB = (params, options) => __awaiter(void 0, void 0, void 0, func
         });
     }
     ;
-    andConditions.push({
-        isDeleted: false
-    });
+    // Only admins
+    andConditions.push({ role: 'ADMIN' });
     //console.dir(andConditions, { depth: 'inifinity' })
     const whereConditions = { AND: andConditions };
-    const result = yield prisma_1.default.admin.findMany({
+    const result = yield prisma_1.default.user.findMany({
         where: whereConditions,
         skip,
         take: limit,
         orderBy: options.sortBy && options.sortOrder ? {
             [options.sortBy]: options.sortOrder
-        } : {
-            createdAt: 'desc'
-        }
+        } : { createdAt: 'desc' }
     });
-    const total = yield prisma_1.default.admin.count({
-        where: whereConditions
-    });
+    const total = yield prisma_1.default.user.count({ where: whereConditions });
     return {
         meta: {
             page,
@@ -81,76 +75,31 @@ const getAllFromDB = (params, options) => __awaiter(void 0, void 0, void 0, func
     };
 });
 const getByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.admin.findUnique({
-        where: {
-            id,
-            isDeleted: false
-        }
-    });
+    const result = yield prisma_1.default.user.findUnique({ where: { id } });
+    if (!result || result.role !== 'ADMIN')
+        return null;
     return result;
 });
 const updateIntoDB = (id, data) => __awaiter(void 0, void 0, void 0, function* () {
-    yield prisma_1.default.admin.findUniqueOrThrow({
-        where: {
-            id,
-            isDeleted: false
-        }
-    });
-    const result = yield prisma_1.default.admin.update({
-        where: {
-            id
-        },
-        data
-    });
+    const existing = yield prisma_1.default.user.findUniqueOrThrow({ where: { id } });
+    if (existing.role !== 'ADMIN')
+        throw new Error('User is not an admin');
+    const result = yield prisma_1.default.user.update({ where: { id }, data });
     return result;
 });
 const deleteFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    yield prisma_1.default.admin.findUniqueOrThrow({
-        where: {
-            id
-        }
-    });
-    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        const adminDeletedData = yield transactionClient.admin.delete({
-            where: {
-                id
-            }
-        });
-        yield transactionClient.user.delete({
-            where: {
-                email: adminDeletedData.email
-            }
-        });
-        return adminDeletedData;
-    }));
+    const existing = yield prisma_1.default.user.findUniqueOrThrow({ where: { id } });
+    if (existing.role !== 'ADMIN')
+        throw new Error('User is not an admin');
+    const result = yield prisma_1.default.user.delete({ where: { id } });
     return result;
 });
 const softDeleteFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    yield prisma_1.default.admin.findUniqueOrThrow({
-        where: {
-            id,
-            isDeleted: false
-        }
-    });
-    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        const adminDeletedData = yield transactionClient.admin.update({
-            where: {
-                id
-            },
-            data: {
-                isDeleted: true
-            }
-        });
-        yield transactionClient.user.update({
-            where: {
-                email: adminDeletedData.email
-            },
-            data: {
-                status: client_1.UserStatus.DELETED
-            }
-        });
-        return adminDeletedData;
-    }));
+    // Prisma schema does not have soft-delete fields; perform hard delete for now
+    const existing = yield prisma_1.default.user.findUniqueOrThrow({ where: { id } });
+    if (existing.role !== 'ADMIN')
+        throw new Error('User is not an admin');
+    const result = yield prisma_1.default.user.delete({ where: { id } });
     return result;
 });
 exports.AdminService = {

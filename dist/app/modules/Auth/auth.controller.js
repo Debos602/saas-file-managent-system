@@ -95,9 +95,7 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         statusCode: http_status_1.default.OK,
         success: true,
         message: "Logged in successfully!",
-        data: {
-            needPasswordChange: result.needPasswordChange,
-        }
+        data: null
     });
 }));
 const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -187,35 +185,6 @@ const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         },
     });
 }));
-const changePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
-    const result = yield auth_service_1.AuthServices.changePassword(user, req.body);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Password Changed successfully",
-        data: result,
-    });
-}));
-const forgotPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield auth_service_1.AuthServices.forgotPassword(req.body);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Check your email!",
-        data: null,
-    });
-}));
-const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const token = req.headers.authorization || "";
-    yield auth_service_1.AuthServices.resetPassword(token, req.body);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Password Reset!",
-        data: null,
-    });
-}));
 const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.cookies;
     const result = yield auth_service_1.AuthServices.getMe(user);
@@ -229,8 +198,5 @@ const getMe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, 
 exports.AuthController = {
     loginUser,
     refreshToken,
-    changePassword,
-    forgotPassword,
-    resetPassword,
     getMe
 };

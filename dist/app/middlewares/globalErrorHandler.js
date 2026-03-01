@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
+const ApiError_1 = __importDefault(require("../errors/ApiError"));
 // Sanitize error to prevent exposing sensitive information in production
 const sanitizeError = (error) => {
     var _a;
@@ -18,27 +19,36 @@ const sanitizeError = (error) => {
     return error;
 };
 const globalErrorHandler = (err, req, res, next) => {
-    console.log({ err });
+    // Log error for internal diagnostics (do not expose to clients)
+    console.error(err);
     let statusCode = http_status_1.default.INTERNAL_SERVER_ERROR;
     let success = false;
-    let message = err.message || "Something went wrong!";
-    let error = err;
-    if (err instanceof client_1.Prisma.PrismaClientValidationError) {
-        message = 'Validation Error';
-        error = err.message;
+    let message = (err === null || err === void 0 ? void 0 : err.message) || "Something went wrong!";
+    // If it's our ApiError, use its values
+    if (err instanceof ApiError_1.default) {
+        statusCode = err.statusCode || statusCode;
+        message = err.message || message;
+        success = typeof err.success === 'boolean' ? err.success : false;
     }
-    else if (err instanceof client_1.Prisma.PrismaClientKnownRequestError) {
-        if (err.code === 'P2002') {
-            message = "Duplicate Key error";
-            error = err.meta;
+    else {
+        // Prisma specific handling
+        if (err instanceof client_1.Prisma.PrismaClientValidationError) {
+            message = 'Validation Error';
+        }
+        else if (err instanceof client_1.Prisma.PrismaClientKnownRequestError) {
+            if (err.code === 'P2002') {
+                message = "Duplicate Key error";
+            }
         }
     }
-    // Sanitize error before sending response
-    const sanitizedError = sanitizeError(error);
-    res.status(statusCode).json({
-        success,
-        message,
-        error: sanitizedError
-    });
+    // Sanitize detail payload for production
+    const isProd = process.env.NODE_ENV === 'production';
+    const payload = { success, message };
+    if (!isProd) {
+        payload.originalError = sanitizeError(err);
+        if (err && err.stack)
+            payload.stack = err.stack;
+    }
+    res.status(statusCode).json(payload);
 };
 exports.default = globalErrorHandler;

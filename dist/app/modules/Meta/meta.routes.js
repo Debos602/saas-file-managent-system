@@ -9,5 +9,5 @@ const meta_controller_1 = require("./meta.controller");
 const auth_1 = __importDefault(require("../../middlewares/auth"));
 const client_1 = require("@prisma/client");
 const router = express_1.default.Router();
-router.get('/', (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.DOCTOR, client_1.UserRole.PATIENT), meta_controller_1.MetaController.fetchDashboardMetaData);
+router.get('/', (0, auth_1.default)(client_1.Role.ADMIN, client_1.Role.USER), meta_controller_1.MetaController.fetchDashboardMetaData);
 exports.MetaRoutes = router;

@@ -3,7 +3,6 @@ import { apiLimiter } from '../middlewares/rateLimiter';
 import { userRoutes } from '../modules/user/user.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
-import { MetaRoutes } from '../modules/meta/meta.routes';
 import { SubscriptionRoutes } from '../modules/subscription/subscription.routes';
 import { FolderRoutes } from '../modules/storage/folder.routes';
 import { FileRoutes } from '../modules/storage/file.routes';
@@ -27,10 +26,6 @@ const moduleRoutes = [
     {
         path: '/auth',
         route: AuthRoutes
-    },
-    {
-        path: '/meta',
-        route: MetaRoutes
     }
     ,
     {
