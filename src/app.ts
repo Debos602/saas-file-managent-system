@@ -9,7 +9,8 @@ const app: Application = express();
 app.use(cookieParser());
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    // origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: '*', // Allow all origins (for development, consider restricting in production) 
     credentials: true
 }));
 

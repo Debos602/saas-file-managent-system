@@ -8,48 +8,88 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubscriptionController = void 0;
 const subscription_service_1 = require("./subscription.service");
+const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
+const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
+const http_status_1 = __importDefault(require("http-status"));
 // Admin Actions
-const createPackage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createPackage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.body;
     const result = yield subscription_service_1.SubscriptionService.createPackage(data);
-    res.json(result);
-});
-const updatePackage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.CREATED,
+        success: true,
+        message: 'Subscription package created',
+        data: result
+    });
+}));
+const updatePackage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const data = req.body;
     const result = yield subscription_service_1.SubscriptionService.updatePackage(id, data);
-    res.json(result);
-});
-const deletePackage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Subscription package updated',
+        data: result
+    });
+}));
+const deletePackage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const result = yield subscription_service_1.SubscriptionService.deletePackage(id);
-    res.json(result);
-});
-const getAllPackages = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Subscription package deleted',
+        data: result
+    });
+}));
+const getAllPackages = (0, catchAsync_1.default)((_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield subscription_service_1.SubscriptionService.getAllPackages();
-    res.json(result);
-});
-const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Subscription packages fetched',
+        data: result
+    });
+}));
+const getById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const result = yield subscription_service_1.SubscriptionService.getById(id);
-    res.json(result);
-});
-//user Actions
-const selectPackage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Subscription package fetched',
+        data: result
+    });
+}));
+// user Actions
+const selectPackage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    console.log("user", user);
     const { packageId } = req.body;
     const result = yield subscription_service_1.SubscriptionService.selectPackageForUser(user.id, packageId);
-    res.json(result);
-});
-const getUserSubscriptions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Package selected for user',
+        data: result
+    });
+}));
+const getUserSubscriptions = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const result = yield subscription_service_1.SubscriptionService.getUserSubscriptions(user.id);
-    res.json(result);
-});
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'User subscriptions fetched',
+        data: result
+    });
+}));
 exports.SubscriptionController = {
     createPackage,
     updatePackage,

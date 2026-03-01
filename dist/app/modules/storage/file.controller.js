@@ -8,53 +8,86 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileController = void 0;
 const file_service_1 = require("./file.service");
 const folder_service_1 = require("./folder.service");
-const upload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
+const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
+const http_status_1 = __importDefault(require("http-status"));
+const upload = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     let folderId = req.body.folderId;
     const file = req.file;
     if (!file) {
-        res.status(400).json({ message: 'No file uploaded' });
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.BAD_REQUEST,
+            success: false,
+            message: 'No file uploaded'
+        });
         return;
     }
-    // Ensure a folder is available: use provided, or user's first root folder, or create one
     if (!folderId) {
         const roots = yield folder_service_1.FolderService.getRootFolders(user.id);
-        if (roots && roots.length > 0) {
+        if (roots && roots.length > 0)
             folderId = roots[0].id;
-        }
         else {
             const created = yield folder_service_1.FolderService.createFolder(user.id, 'root');
             folderId = created.id;
         }
     }
     const result = yield file_service_1.FileService.uploadFile(user.id, folderId, file);
-    res.json(result);
-});
-const list = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.CREATED,
+        success: true,
+        message: 'File uploaded',
+        data: result
+    });
+}));
+const list = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const folderId = req.params.folderId;
     const result = yield file_service_1.FileService.listFilesInFolder(folderId);
-    res.json(result);
-});
-const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Files fetched',
+        data: result
+    });
+}));
+const getById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const result = yield file_service_1.FileService.getFileById(id);
-    res.json(result);
-});
-const remove = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'File fetched',
+        data: result
+    });
+}));
+const remove = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const result = yield file_service_1.FileService.deleteFile(id);
-    res.json(result);
-});
-const rename = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'File deleted',
+        data: result
+    });
+}));
+const rename = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const { name } = req.body;
     const result = yield file_service_1.FileService.renameFile(id, name);
-    res.json(result);
-});
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'File renamed',
+        data: result
+    });
+}));
 exports.FileController = {
     upload,
     list,
