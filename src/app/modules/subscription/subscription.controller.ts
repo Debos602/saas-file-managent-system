@@ -43,14 +43,22 @@ const deletePackage = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const getAllPackages = catchAsync(async (_req: Request, res: Response) => {
-    const result = await SubscriptionService.getAllPackages();
+const getAllPackages = catchAsync(async (req: Request, res: Response) => {
+    const options = {
+        page: req.query.page as any,
+        limit: req.query.limit as any,
+        sortBy: req.query.sortBy as any,
+        sortOrder: req.query.sortOrder as any,
+    };
+
+    const result = await SubscriptionService.getAllPackages(options);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
         message: 'Subscription packages fetched',
-        data: result
+        meta: result.meta,
+        data: result.data
     });
 });
 

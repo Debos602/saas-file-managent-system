@@ -94,6 +94,21 @@ const updateMyProfie = catchAsync(async (req: Request & { user?: IAuthUser; }, r
 
     const user = req.user;
 
+    // Normalize payload: accept raw JSON or multipart form-data with `data` field
+    let input: any = req.body;
+    const contentType = req.headers['content-type'] || '';
+    if (typeof contentType === 'string' && contentType.includes('application/json')) {
+        input = req.body;
+    } else if (req.body && (req as any).body.data) {
+        try {
+            input = JSON.parse((req as any).body.data);
+        } catch (e) {
+            input = (req as any).body.data;
+        }
+    }
+
+    req.body = input;
+
     const result = await userService.updateMyProfie(user as IAuthUser, req);
 
     sendResponse(res, {
@@ -104,10 +119,23 @@ const updateMyProfie = catchAsync(async (req: Request & { user?: IAuthUser; }, r
     });
 });
 
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await userService.deleteUser(id);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'User deleted successfully',
+        data: { id: result.id }
+    });
+});
+
 export const userController = {
     createUser,
     getAllFromDB,
     changeProfileStatus,
     getMyProfile,
     updateMyProfie
+    , deleteUser
 };

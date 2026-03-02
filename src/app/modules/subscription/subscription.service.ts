@@ -1,5 +1,6 @@
 import { Prisma, SubscriptionPackage } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import { paginationHelper } from "../../../helpers/paginationHelper";
 import ApiError from "../../errors/ApiError";
 
 const createPackage = async (payload: Prisma.SubscriptionPackageCreateInput): Promise<SubscriptionPackage> => {
@@ -19,8 +20,27 @@ const deletePackage = async (id: string) => {
     return prisma.subscriptionPackage.delete({ where: { id } });
 };
 
-const getAllPackages = async () => {
-    return prisma.subscriptionPackage.findMany({ orderBy: { createdAt: 'asc' } });
+const getAllPackages = async (options?: { page?: number; limit?: number; sortBy?: string; sortOrder?: string; }) => {
+    const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options || {});
+
+    // Use Promise.all instead of $transaction to avoid transaction startup timeouts
+    const [data, total] = await Promise.all([
+        prisma.subscriptionPackage.findMany({
+            skip,
+            take: limit,
+            orderBy: { [sortBy]: sortOrder as any }
+        }),
+        prisma.subscriptionPackage.count()
+    ]);
+
+    return {
+        meta: {
+            page,
+            limit,
+            total
+        },
+        data
+    };
 };
 
 const getById = async (id: string) => {

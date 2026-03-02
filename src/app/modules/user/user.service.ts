@@ -104,23 +104,50 @@ const getMyProfile = async (user: IAuthUser) => {
 
 
 const updateMyProfie = async (user: IAuthUser, req: Request) => {
-    const userInfo = await prisma.user.findUniqueOrThrow({ where: { email: user?.email } });
-    const file = req.file;
-    if (file) {
-        const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
-        // no profile photo field on User model; ignore or extend schema
-        req.body.profilePhoto = uploadToCloudinary?.secure_url;
+    const userInfo = await prisma.user.findUniqueOrThrow({
+        where: { email: user?.email }
+    });
+    // ✅ If email is being updated, check duplicate
+    if (req.body.email) {
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                email: req.body.email,
+                NOT: { id: userInfo.id }
+            }
+        });
+
+        if (existingUser) {
+            throw new Error("Email already exists");
+        }
     }
 
-    const update = await prisma.user.update({ where: { id: userInfo.id }, data: req.body as any });
+    const update = await prisma.user.update({
+        where: { id: userInfo.id },
+        data: {
+            name: req.body.name,
+            email: req.body.email,
+        }
+    });
+
     return update;
 };
 
+
+// service exports
+const deleteUser = async (id: string) => {
+    // Ensure user exists (will throw if not)
+    await prisma.user.findUniqueOrThrow({ where: { id } });
+    const deleted = await prisma.user.delete({ where: { id } });
+    return deleted;
+};
 
 export const userService = {
     createUser,
     getAllFromDB,
     changeProfileStatus,
     getMyProfile,
-    updateMyProfie
+    updateMyProfie,
+    deleteUser,
 };
+
+// (exports above)

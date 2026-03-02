@@ -11,12 +11,15 @@ const loginUser = async (payload: {
     email: string,
     password: string;
 }) => {
-    const userData = await prisma.user.findUniqueOrThrow({ where: { email: payload.email } });
+    const userData = await prisma.user.findUnique({ where: { email: payload.email } });
+    if (!userData) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid credentials');
+    }
 
     const isCorrectPassword: boolean = await bcrypt.compare(payload.password, userData.password);
 
     if (!isCorrectPassword) {
-        throw new Error("Password incorrect!");
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid credentials');
     }
     const accessToken = jwtHelpers.generateToken({
         email: userData.email,
@@ -48,7 +51,10 @@ const refreshToken = async (token: string) => {
         throw new Error("You are not authorized!");
     }
 
-    const userData = await prisma.user.findUniqueOrThrow({ where: { email: decodedData.email } });
+    const userData = await prisma.user.findUnique({ where: { email: decodedData.email } });
+    if (!userData) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'User not found');
+    }
 
     const accessToken = jwtHelpers.generateToken({
         email: userData.email,
@@ -73,21 +79,32 @@ const refreshToken = async (token: string) => {
 };
 
 
-const getMe = async (user: any) => {
-    const accessToken = user.accessToken;
-    // If a user object with email is provided, return basic profile; otherwise decode accessToken
-    if (user && user.email) {
-        const userData = await prisma.user.findUniqueOrThrow({ where: { email: user.email }, select: { id: true, name: true, email: true, role: true, createdAt: true, updatedAt: true } });
-        return userData;
+const getMe = async (accessToken: string | undefined) => {
+    if (!accessToken) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
     }
 
-    if (accessToken) {
-        const decodedData = jwtHelpers.verifyToken(accessToken, config.jwt.jwt_secret as Secret);
-        const userData = await prisma.user.findUniqueOrThrow({ where: { email: decodedData.email }, select: { id: true, name: true, email: true, role: true, createdAt: true, updatedAt: true } });
-        return userData;
+    const decodedData = jwtHelpers.verifyToken(
+        accessToken,
+        config.jwt.jwt_secret as Secret
+    );
+
+    const userData = await prisma.user.findUnique({
+        where: { email: decodedData.email },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+    if (!userData) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
 
-    throw new ApiError(httpStatus.BAD_REQUEST, 'No user information available');
+    return userData;
 };
 
 

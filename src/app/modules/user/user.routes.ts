@@ -27,14 +27,13 @@ router.patch(
     userController.changeProfileStatus
 );
 
+router.delete('/:id', auth(Role.ADMIN), userController.deleteUser);
+
 router.patch(
     "/update-my-profile",
     auth(Role.ADMIN, Role.USER),
     fileUploader.upload.single('file'),
-    (req: Request, res: Response, next: NextFunction) => {
-        req.body = JSON.parse(req.body.data);
-        return userController.updateMyProfie(req, res, next);
-    }
+    userController.updateMyProfie
 );
 
 

@@ -169,10 +169,10 @@ REFRESH_TOKEN_EXPIRES_IN=1y
 
 
 
-const getMe = catchAsync(async (req: Request & { user?: any; }, res: Response) => {
-  const user = req.cookies;
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const accessToken = req.cookies?.accessToken;
 
-  const result = await AuthServices.getMe(user);
+  const result = await AuthServices.getMe(accessToken);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -183,9 +183,31 @@ const getMe = catchAsync(async (req: Request & { user?: any; }, res: Response) =
 });
 
 
+const logout = catchAsync(async (req: Request, res: Response) => {
+  // Clear both cookies used for auth. Use same options to ensure the cookie is removed in the browser.
+  const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none' as const,
+    path: '/',
+  };
+
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Logged out successfully',
+    data: null,
+  });
+});
+
+
 
 export const AuthController = {
   loginUser,
   refreshToken,
   getMe
+  , logout
 };
