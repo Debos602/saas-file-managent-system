@@ -71,10 +71,21 @@ const softDeleteFromDB = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
+    const result = await AdminService.getDashboardStats();
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Dashboard stats fetched!',
+        data: result
+    });
+});
+
 export const AdminController = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
     deleteFromDB,
     softDeleteFromDB
+    , getDashboardStats
 };

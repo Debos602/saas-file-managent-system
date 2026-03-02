@@ -9,6 +9,8 @@ const router = express.Router();
 
 router.get('/', auth(Role.ADMIN), AdminController.getAllFromDB);
 
+router.get('/dashboard', auth(Role.ADMIN), AdminController.getDashboardStats);
+
 router.get('/:id', auth(Role.ADMIN), AdminController.getByIdFromDB);
 
 router.patch('/:id', auth(Role.ADMIN), validateRequest(adminValidationSchemas.update), AdminController.updateIntoDB);

@@ -89,10 +89,66 @@ const softDeleteFromDB = async (id: string) => {
 };
 
 
+const getDashboardStats = async () => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+    const sixtyDaysAgo = new Date(now);
+    sixtyDaysAgo.setDate(now.getDate() - 60);
+
+    const totalUsers = await prisma.user.count({ where: { role: 'USER' } });
+    const newUsersNow = await prisma.user.count({ where: { role: 'USER', createdAt: { gte: thirtyDaysAgo, lt: now } } });
+    const newUsersPrev = await prisma.user.count({ where: { role: 'USER', createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } } });
+
+    const activeNow = await prisma.userSubscription.count({
+        where: {
+            startDate: { lte: now },
+            OR: [
+                { endDate: null },
+                { endDate: { gt: now } }
+            ]
+        }
+    });
+    const activePrev = await prisma.userSubscription.count({
+        where: {
+            startDate: { lte: thirtyDaysAgo },
+            OR: [
+                { endDate: null },
+                { endDate: { gt: thirtyDaysAgo } }
+            ]
+        }
+    });
+
+    const totalFiles = await prisma.file.count();
+    const newFilesNow = await prisma.file.count({ where: { createdAt: { gte: thirtyDaysAgo, lt: now } } });
+    const newFilesPrev = await prisma.file.count({ where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } } });
+
+    const totalFolders = await prisma.folder.count();
+    const newFoldersNow = await prisma.folder.count({ where: { createdAt: { gte: thirtyDaysAgo, lt: now } } });
+    const newFoldersPrev = await prisma.folder.count({ where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } } });
+
+    const percentChange = (nowVal: number, prevVal: number) => {
+        if (prevVal === 0) return nowVal === 0 ? 0 : 100;
+        return Math.round(((nowVal - prevVal) / prevVal) * 100);
+    };
+
+    return {
+        totalUsers,
+        usersChangePercent: percentChange(newUsersNow, newUsersPrev),
+        activeSubscriptions: activeNow,
+        subscriptionsChangePercent: percentChange(activeNow, activePrev),
+        totalFiles,
+        filesChangePercent: percentChange(newFilesNow, newFilesPrev),
+        totalFolders,
+        foldersChangePercent: percentChange(newFoldersNow, newFoldersPrev)
+    };
+};
+
 export const AdminService = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
     deleteFromDB,
-    softDeleteFromDB
+    softDeleteFromDB,
+    getDashboardStats
 };
